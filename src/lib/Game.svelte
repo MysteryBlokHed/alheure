@@ -2,6 +2,7 @@
   import Button, { Icon, Label } from '@smui/button'
   import Card from '@smui/card'
   import Ripple from '@smui/ripple'
+  import confetti from 'canvas-confetti'
 
   import questions from '../questions'
   import { players as playersStore } from '../stores'
@@ -60,7 +61,22 @@
   /** Whether anyone was eliminated for the current round */
   let anyEliminated = false
 
-  $: console.log(timerSet)
+  $: if (state === GameState.GameOver) {
+    confetti({
+      particleCount: 250,
+      spread: 100,
+      angle: 0,
+      origin: { x: -0.1, y: 0.5 },
+      disableForReducedMotion: true,
+    })
+    confetti({
+      particleCount: 250,
+      spread: 100,
+      angle: 180,
+      origin: { x: 1.1, y: 0.5 },
+      disableForReducedMotion: true,
+    })
+  }
 
   playersStore.subscribe(value => (players = value))
 
