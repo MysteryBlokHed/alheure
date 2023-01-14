@@ -38,17 +38,20 @@
   const timerDecrement = 5
   /** The smallest amount of time allowed for the timer */
   const minTimer = 3
-  /** The current value for the timer*/
+  /** The current value for the timer */
   let timer = timerSet
-  /** The number of the interval to count down the timer*/
+  /** The number of the interval to count down the timer */
   let timerInterval: number
 
-  /** The list of active players*/
+  /** The list of active players */
   let players: Player[]
   /** The current player's index */
   let current = 0
   /** The victor, when the game is over */
   let victor: Player
+
+  /** The number of the interval to show confetti */
+  let confettiInterval: number
 
   /**
    * The list of available questions.
@@ -61,22 +64,30 @@
   /** Whether anyone was eliminated for the current round */
   let anyEliminated = false
 
-  $: if (state === GameState.GameOver) {
+  const showConfetti = () => {
     void confetti({
-      particleCount: 250,
+      particleCount: 200,
       spread: 100,
       angle: 0,
       origin: { x: -0.1, y: 0.5 },
       disableForReducedMotion: true,
     })
     void confetti({
-      particleCount: 250,
+      particleCount: 200,
       spread: 100,
       angle: 180,
       origin: { x: 1.1, y: 0.5 },
       disableForReducedMotion: true,
     })
   }
+
+  $: if (state === GameState.GameOver) {
+    showConfetti()
+    confettiInterval = window.setInterval(showConfetti, 4000)
+  }
+
+  $: if (state === GameState.NewRound && confettiInterval)
+    clearInterval(confettiInterval)
 
   playersStore.subscribe(value => (players = value))
 
@@ -93,33 +104,36 @@
 
   /**
    * Start the flip animation and update the game state
-   * @param newState The name game state
+   * @param newState The new game state
    * @param callback Called when content is safe to change
+   * @returns A Promise that resolves when content is safe to change
    */
-  const flipAndChangeState = (newState: GameState, callback?: () => void) => {
-    cardEnabled = false
-    container?.classList.add('flip')
+  const flipAndChangeState = (newState: GameState, callback?: () => void) =>
+    new Promise<void>(resolve => {
+      cardEnabled = false
+      container?.classList.add('flip')
 
-    // Reset state and run callback
-    setTimeout(() => {
-      state = newState
-      callback?.()
-    }, flipTime / 2)
+      // Reset state and run callback
+      setTimeout(() => {
+        state = newState
+        callback?.()
+        resolve()
+      }, flipTime / 2)
 
-    // Re-enable card interaction and remove flip class
-    setTimeout(() => {
-      container.classList.remove('flip')
-      cardEnabled = true
-    }, flipTime)
-  }
+      // Re-enable card interaction and remove flip class
+      setTimeout(() => {
+        container.classList.remove('flip')
+        cardEnabled = true
+      }, flipTime)
+    })
 
   /**
    * Start the flip animation and increment the game state by 1
    * @param callback Called when content is safe to change
+   * @returns A Promise that resolves when content is safe to change
    */
-  const flipAndNextState = (callback?: () => void) => {
+  const flipAndNextState = (callback?: () => void) =>
     flipAndChangeState(state + 1, callback)
-  }
 
   /**
    * Get a description of the category to show to a user
@@ -179,21 +193,32 @@
 
   /**
    * Go to the next player
-   * @param lastCorrect Whether the last player was correct
+   * @param lastCorrect Whether the last player answered correctly
    */
   const nextPlayer = (lastCorrect: boolean) => {
+    // Get list of available players
+    // It's important that this happens before the elimination code below
+    const playersAvailable = players.filter(
+      player => player.state === PlayerState.Playing,
+    )
+
     // Eliminate player if required
     if (!lastCorrect) {
+      anyEliminated = true
       players[current].state = PlayerState.Eliminated
       playersStore.set(players)
       if (checkGameOver()) return
     }
 
-    // Select next player
-    if (current !== players.length - 1) {
-      current++
+    const currentIsLast =
+      playersAvailable.indexOf(players[current]) === playersAvailable.length - 1
+
+    if (!currentIsLast) {
+      const nextPlayer =
+        playersAvailable[playersAvailable.indexOf(players[current]) + 1]
+      current = players.indexOf(nextPlayer)
     } else {
-      current = 0
+      current = players.indexOf(playersAvailable[0])
       fullRoundDone()
     }
     flipAndChangeState(GameState.NewRound)
