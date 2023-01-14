@@ -151,7 +151,6 @@
 
   /** Called when a full round has been completed */
   const fullRoundDone = () => {
-    console.log('Round done')
     // Decrease timer time if nobody was eliminated
     if (!anyEliminated) {
       const newTime = timerSet - timerDecrement

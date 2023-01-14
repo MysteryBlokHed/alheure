@@ -23,8 +23,6 @@
     // Ensure no names are empty
     const empty = players.filter(player => !player.name)
 
-    console.log(empty)
-
     if (empty.length) {
       for (const player of empty) {
         player.invalid = true
@@ -59,8 +57,6 @@
 
     playersStore.set(players)
     startedStore.set(true)
-
-    console.log('Game started with players', players)
   }
 </script>
 
