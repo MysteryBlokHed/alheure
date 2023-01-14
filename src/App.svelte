@@ -6,11 +6,8 @@
   import Help from './lib/Rules.svelte'
   import Setup from './lib/Setup.svelte'
 
-  import { players as playersStore, started as startedStore } from './stores'
-  import type { Player } from './types'
+  import { started as startedStore } from './stores'
 
-  let players: Player[]
-  playersStore.subscribe(value => (players = value))
   let started: boolean
   startedStore.subscribe(value => (started = value))
 </script>

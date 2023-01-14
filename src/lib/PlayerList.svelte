@@ -4,6 +4,8 @@
   import { players as playersStore } from '../stores'
   import { PlayerState, type Player } from '../types'
 
+  /* eslint-disable @typescript-eslint/no-unsafe-argument */
+
   let players: Player[]
 
   playersStore.subscribe(value => (players = value))
