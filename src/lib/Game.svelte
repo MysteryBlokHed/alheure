@@ -81,14 +81,14 @@
     void confetti({
       particleCount: 200,
       spread: 100,
-      angle: 0,
+      angle: 23,
       origin: { x: -0.1, y: 0.5 },
       disableForReducedMotion: true,
     })
     void confetti({
       particleCount: 200,
       spread: 100,
-      angle: 180,
+      angle: 157,
       origin: { x: 1.1, y: 0.5 },
       disableForReducedMotion: true,
     })
