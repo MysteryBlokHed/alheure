@@ -119,26 +119,23 @@
    * Start the flip animation and update the game state
    * @param newState The new game state
    * @param callback Called when content is safe to change
-   * @returns A Promise that resolves when content is safe to change
    */
-  const flipAndChangeState = (newState: GameState, callback?: () => void) =>
-    new Promise<void>(resolve => {
-      cardEnabled = false
-      container?.classList.add('flip')
+  const flipAndChangeState = (newState: GameState, callback?: () => void) => {
+    cardEnabled = false
+    container?.classList.add('flip')
 
-      // Reset state and run callback
-      setTimeout(() => {
-        state = newState
-        callback?.()
-        resolve()
-      }, flipTime / 2)
+    // Reset state and run callback
+    setTimeout(() => {
+      state = newState
+      callback?.()
+    }, flipTime / 2)
 
-      // Re-enable card interaction and remove flip class
-      setTimeout(() => {
-        container.classList.remove('flip')
-        cardEnabled = true
-      }, flipTime)
-    })
+    // Re-enable card interaction and remove flip class
+    setTimeout(() => {
+      container.classList.remove('flip')
+      cardEnabled = true
+    }, flipTime)
+  }
 
   /**
    * Start the flip animation and increment the game state by 1
@@ -351,6 +348,7 @@
     {/if}
   </h2>
 
+  <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
   <div
     role="button"
     class="card-container"
