@@ -62,14 +62,14 @@
   let anyEliminated = false
 
   $: if (state === GameState.GameOver) {
-    confetti({
+    void confetti({
       particleCount: 250,
       spread: 100,
       angle: 0,
       origin: { x: -0.1, y: 0.5 },
       disableForReducedMotion: true,
     })
-    confetti({
+    void confetti({
       particleCount: 250,
       spread: 100,
       angle: 180,
