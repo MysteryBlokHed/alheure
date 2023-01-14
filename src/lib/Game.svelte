@@ -47,6 +47,10 @@
   let players: Player[]
   /** The current player's index */
   let current = 0
+  /** The players in the elimination round */
+  let eliminationPlayers: [Player, Player]
+  /** The index in `eliminationPlayers` of the player who buzed in during the elimination round */
+  let buzzedIn: 0 | 1
   /** The victor, when the game is over */
   let victor: Player
 
@@ -63,6 +67,15 @@
 
   /** Whether anyone was eliminated for the current round */
   let anyEliminated = false
+
+  /** Pick question and remove it from available questions */
+  const newQuestion = () => {
+    if (!availableQuestions.length) availableQuestions = [...questions]
+
+    question =
+      availableQuestions[Math.floor(Math.random() * availableQuestions.length)]
+    availableQuestions.splice(availableQuestions.indexOf(question), 1)
+  }
 
   const showConfetti = () => {
     void confetti({
@@ -177,6 +190,7 @@
     }
   }
 
+  /** Checks whether the game is over, and updates the state if it is */
   const checkGameOver = () => {
     const nonEliminated = players.filter(
       player => player.state !== PlayerState.Eliminated,
@@ -192,6 +206,28 @@
   }
 
   /**
+   * Checks whether an elimination round is required.
+   * Elimination rounds happen when two people are in limbo,
+   * and decide who should return to the game and who should remain eliminated
+   */
+  const eliminationRound = (): [true, [Player, Player]] | false => {
+    const limbo = players.filter(player => player.state === PlayerState.Limbo)
+
+    if (limbo.length === 2) return [true, limbo as [Player, Player]]
+    return false
+  }
+
+  /**
+   * Set the player that buzzed in for the elimination round
+   * @param player Which elimination player buzzed in
+   * (either 0 or 1)
+   */
+  const eliminationRoundSelectPlayer = (player: 0 | 1) => {
+    buzzedIn = player
+    flipAndNextState()
+  }
+
+  /**
    * Go to the next player
    * @param lastCorrect Whether the last player answered correctly
    */
@@ -202,12 +238,42 @@
       player => player.state === PlayerState.Playing,
     )
 
-    // Eliminate player if required
-    if (!lastCorrect) {
-      anyEliminated = true
-      players[current].state = PlayerState.Eliminated
+    const wasEliminationRound = state === GameState.EliminationAnswerDisplayed
+
+    // Eliminate player/send to limbo if required
+    if (wasEliminationRound) {
+      const winner = lastCorrect ? buzzedIn : buzzedIn === 0 ? 1 : 0
+      const loser = winner === 0 ? 1 : 0
+
+      eliminationPlayers[winner].state = PlayerState.Playing
+      eliminationPlayers[loser].state = PlayerState.Eliminated
       playersStore.set(players)
-      if (checkGameOver()) return
+    } else {
+      if (!lastCorrect) {
+        anyEliminated = true
+
+        // Get list of non-eliminated players
+        const nonEliminated = players.filter(
+          player => player.state !== PlayerState.Eliminated,
+        )
+
+        if (nonEliminated.length === 2) {
+          players[current].state = PlayerState.Eliminated
+        } else {
+          players[current].state = PlayerState.Limbo
+        }
+
+        playersStore.set(players)
+        if (checkGameOver()) return
+      }
+    }
+
+    // Run an elimination round if required
+    const elimination = eliminationRound()
+    if (elimination) {
+      eliminationPlayers = elimination[1]
+      flipAndChangeState(GameState.NewEliminationRound)
+      return
     }
 
     const currentIsLast =
@@ -219,7 +285,7 @@
       current = players.indexOf(nextPlayer)
     } else {
       current = players.indexOf(playersAvailable[0])
-      fullRoundDone()
+      if (!wasEliminationRound) fullRoundDone()
     }
     flipAndChangeState(GameState.NewRound)
   }
@@ -229,37 +295,28 @@
     if (!cardEnabled) return
 
     switch (state) {
-      // Prompt to start game
       case GameState.Pregame:
+      case GameState.PreEliminationQuestion:
+      case GameState.EliminationQuestionDisplayed:
         flipAndNextState()
         break
 
-      // Pick a question and reveal its category
       case GameState.NewRound:
-        // Pick question and remove it from available questions
-        if (!availableQuestions.length) availableQuestions = [...questions]
-
-        question =
-          availableQuestions[
-            Math.floor(Math.random() * availableQuestions.length)
-          ]
-        availableQuestions.splice(availableQuestions.indexOf(question), 1)
-
+      case GameState.NewEliminationRound:
+        newQuestion()
         flipAndNextState()
         break
 
-      // Reveal the question and start the timer
       case GameState.PreQuestion:
         flipAndNextState(runTimer)
         break
 
-      // Reveal the answer and ask if the player answered correctly
       case GameState.QuestionDisplayed:
         flipAndNextState(resetTimer)
         break
 
-      // Do nothing; the state change is handled elsewhere
       case GameState.AnswerDisplayed:
+      case GameState.EliminationPlayerAnswered:
       case GameState.GameOver:
         break
 
@@ -273,12 +330,21 @@
   <h2>
     {#if state === GameState.Pregame}
       Commencement du jeu
+    {:else if state >= GameState.NewEliminationRound && state <= GameState.EliminationAnswerDisplayed}
+      Tour d'élimination entre
+      <b class="player-name">
+        {eliminationPlayers[0].name}
+      </b>
+      et
+      <b class="player-name">
+        {eliminationPlayers[1].name}
+      </b>
     {:else if state !== GameState.GameOver}
-      Tour de <b style:color="var(--mdc-theme-primary, #ff3e00)">
+      Tour de <b class="player-name">
         {players[current].name}
       </b>
     {:else}
-      <b style:color="var(--mdc-theme-primary, #ff3e00)">
+      <b class="player-name">
         {victor.name}
       </b>
       a gagné!
@@ -321,8 +387,28 @@
         {/if}
       {/if}
 
-      {#if state === GameState.AnswerDisplayed}
+      {#if state === GameState.AnswerDisplayed || state === GameState.EliminationAnswerDisplayed}
         <p>Réponse: {question.answer}</p>
+      {/if}
+
+      {#if state === GameState.NewEliminationRound}
+        <p>
+          Tour d'élimination:
+          <br />
+          {eliminationPlayers[0].name} vs. {eliminationPlayers[1].name}
+        </p>
+      {/if}
+
+      {#if state === GameState.PreEliminationQuestion}
+        Préparez-vous...
+      {/if}
+
+      {#if state === GameState.EliminationQuestionDisplayed}
+        {question.question}
+      {/if}
+
+      {#if state === GameState.EliminationPlayerAnswered}
+        Qui a répondu?
       {/if}
 
       {#if state === GameState.GameOver}
@@ -337,7 +423,7 @@
     </h1>
   {/if}
 
-  {#if state === GameState.AnswerDisplayed}
+  {#if state === GameState.AnswerDisplayed || state === GameState.EliminationAnswerDisplayed}
     <h2>Le joueur a-t-il répondu correctement?</h2>
     <Button on:click={() => nextPlayer(true)} variant="raised">
       <Label>Oui</Label>
@@ -348,10 +434,24 @@
       <Icon class="material-icons">close</Icon>
     </Button>
   {/if}
+
+  {#if state === GameState.EliminationPlayerAnswered}
+    <h2>Choissiez le joueur qui a répondu:</h2>
+    <Button on:click={() => eliminationRoundSelectPlayer(0)} variant="raised">
+      <Label>{eliminationPlayers[0].name}</Label>
+    </Button>
+    <Button on:click={() => eliminationRoundSelectPlayer(1)} variant="raised">
+      <Label>{eliminationPlayers[1].name}</Label>
+    </Button>
+  {/if}
 </div>
 
 <style>
   .card-container {
     border-radius: var(--mdc-shape-medium, 4px);
+  }
+
+  .player-name {
+    color: var(--mdc-theme-primary, #ff3e00);
   }
 </style>

@@ -20,6 +20,16 @@ export enum GameState {
   QuestionDisplayed,
   /** Answer is onscreen */
   AnswerDisplayed,
+  /** The beginning of an elimination round */
+  NewEliminationRound,
+  /** Before an elimination question is revealed */
+  PreEliminationQuestion,
+  /** Elimination question is displayed, players may buzz in */
+  EliminationQuestionDisplayed,
+  /** A player buzzed in with an answer */
+  EliminationPlayerAnswered,
+  /** Elimination answer is onscreen */
+  EliminationAnswerDisplayed,
   /** Game is done */
   GameOver,
 }
