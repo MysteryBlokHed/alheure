@@ -1,0 +1,43 @@
+{
+  "name": "alheure",
+  "description": "A game to work with 10th grade grammar. Made for a French class.",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "yarn lint:prettier --check && yarn lint:eslint && yarn run check",
+    "lint:prettier": "prettier \"**/*.{js,ts,svelte,json,md,yml}\"",
+    "lint:eslint": "eslint src",
+    "check": "svelte-check --tsconfig ./tsconfig.json",
+    "prepare": "npm run smui-theme-light && npm run smui-theme-dark",
+    "smui-theme-light": "smui-theme compile smui/smui.css -i src/theme",
+    "smui-theme-dark": "smui-theme compile smui/smui-dark.css -i src/theme/dark"
+  },
+  "devDependencies": {
+    "@smui/button": "^7.0.0-beta.0",
+    "@smui/card": "^7.0.0-beta.0",
+    "@smui/data-table": "^7.0.0-beta.0",
+    "@smui/dialog": "^7.0.0-beta.0",
+    "@smui/icon-button": "^7.0.0-beta.0",
+    "@smui/ripple": "^7.0.0-beta.0",
+    "@smui/snackbar": "^7.0.0-beta.0",
+    "@smui/textfield": "^7.0.0-beta.0",
+    "@sveltejs/vite-plugin-svelte": "^2.0.0",
+    "@tsconfig/svelte": "^3.0.0",
+    "@typescript-eslint/eslint-plugin": "^5.48.1",
+    "@typescript-eslint/parser": "^5.48.1",
+    "eslint": "^8.31.0",
+    "eslint-plugin-svelte3": "^4.0.0",
+    "prettier": "^2.8.2",
+    "prettier-plugin-svelte": "^2.9.0",
+    "smui-theme": "^7.0.0-beta.0",
+    "svelte": "^3.54.0",
+    "svelte-check": "^2.10.0",
+    "tslib": "^2.4.1",
+    "typescript": "^4.9.3",
+    "vite": "^4.0.0"
+  },
+  "type": "module"
+}

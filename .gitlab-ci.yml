@@ -1,0 +1,64 @@
+image: node:latest
+
+stages:
+  - install
+  - lint
+  - build
+  - deploy
+
+cache:
+  paths:
+    - node_modules/
+    - .yarn-cache/
+    - .cache/
+    - public/
+    - smui/
+
+.changes: &changes
+  - src/**/*
+  - package.json
+  - tsconfig*.json
+  - vite.config.ts
+  - yarn.lock
+  - .gitlab-ci.yml
+  - .prettier*
+
+yarn_install:
+  stage: install
+  script:
+    - yarn --frozen-lockfile --check-files --non-interactive --cache-folder .yarn-cache install
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes: *changes
+    - if: $CI_MERGE_REQUEST_ID
+      changes: *changes
+
+lint:
+  stage: lint
+  script:
+    - yarn --frozen-lockfile --check-files --non-interactive --cache-folder .yarn-cache lint
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes: *changes
+    - if: $CI_MERGE_REQUEST_ID
+      changes: *changes
+
+build:
+  stage: build
+  script:
+    - yarn --frozen-lockfile --check-files --non-interactive --cache-folder .yarn-cache build
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes: *changes
+    - if: $CI_MERGE_REQUEST_ID
+      changes: *changes
+
+pages:
+  stage: deploy
+  script:
+    - echo 'Deploying...'
+  artifacts:
+    paths: ['public/']
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes: *changes
