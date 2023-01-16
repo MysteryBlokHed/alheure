@@ -422,7 +422,7 @@
 
       {#if state === GameState.PreEliminationQuestion}
         <p>Préparez-vous...</p>
-        <p><b>&laquo; Buzz in &raquo; quand la question est révélée</b></p>
+        <p><b>« Buzz in » quand la question est révélée</b></p>
       {/if}
 
       {#if state === GameState.EliminationQuestionDisplayed}
