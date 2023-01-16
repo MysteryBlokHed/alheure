@@ -22,6 +22,8 @@ export enum GameState {
   AnswerDisplayed,
   /** The beginning of an elimination round */
   NewEliminationRound,
+  /** The elimination question's category is revealed */
+  EliminationCategoryDisplayed,
   /** Before an elimination question is revealed */
   PreEliminationQuestion,
   /** Elimination question is displayed, players may buzz in */

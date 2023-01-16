@@ -184,6 +184,7 @@
       }
       resetTimer()
     }
+    anyEliminated = false
   }
 
   /** Checks whether the game is over, and updates the state if it is */
@@ -293,6 +294,7 @@
     switch (state) {
       case GameState.Pregame:
       case GameState.PreEliminationQuestion:
+      case GameState.EliminationCategoryDisplayed:
       case GameState.EliminationQuestionDisplayed:
         flipAndNextState()
         break
@@ -362,11 +364,11 @@
   >
     <Card>
       {#if state === GameState.Pregame}
-        Prêt à jouer?
+        <p>Prêt à jouer?</p>
       {/if}
 
       {#if state === GameState.NewRound}
-        Cliquer pour voir la catégorie
+        <p>Cliquer pour voir la catégorie</p>
       {/if}
 
       {#if state === GameState.PreQuestion}
@@ -390,22 +392,30 @@
 
       {#if state === GameState.NewEliminationRound}
         <p>
-          Tour d'élimination:
+          <b>Showdown:</b>
           <br />
           {eliminationPlayers[0].name} vs. {eliminationPlayers[1].name}
         </p>
       {/if}
 
+      {#if state === GameState.EliminationCategoryDisplayed}
+        <p>
+          <b>Catégorie: {getCategory(question.category)}</b>
+        </p>
+      {/if}
+
       {#if state === GameState.PreEliminationQuestion}
-        Préparez-vous...
+        <p>Préparez-vous...</p>
+        <p><b>&laquo; Buzz in &raquo; quand la question est révélée</b></p>
       {/if}
 
       {#if state === GameState.EliminationQuestionDisplayed}
-        {question.question}
+        <p>{question.question}</p>
       {/if}
 
       {#if state === GameState.EliminationPlayerAnswered}
-        Qui a répondu?
+        <p>{question.question}</p>
+        <p><b>Donnez votre réponse maintenant</b></p>
       {/if}
 
       {#if state === GameState.GameOver}
