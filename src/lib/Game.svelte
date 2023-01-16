@@ -34,6 +34,8 @@
   let state: GameState = GameState.Pregame
   /** The starting value for the timer */
   let timerSet = 20
+  /** The starting value for the timer during elimination rounds */
+  const eliminationTimerSet = 15
   /** How much the timer is decreased by when a round passes without eliminations */
   const timerDecrement = 5
   /** The smallest amount of time allowed for the timer */
@@ -44,6 +46,8 @@
   let timerInterval: number
   /** Whether the timer is at 0. Used to sync the changes of the card with its animation */
   let timeUp = false
+  /** Whether the timer reached 0 during an elimination round. Both players are eliminated */
+  let eliminationTimeUp = false
 
   /** The list of active players */
   let players: Player[]
@@ -176,7 +180,13 @@
     timerInterval = window.setInterval(() => {
       if (--timer === 0) {
         clearInterval(timerInterval)
-        flip(() => (timeUp = true))
+        flip(() => {
+          timeUp = true
+          if (state === GameState.EliminationQuestionDisplayed) {
+            state = GameState.EliminationRoundFailed
+            eliminationTimeUp = true
+          }
+        })
       }
     }, 1000)
   }
@@ -186,6 +196,7 @@
     clearInterval(timerInterval)
     timer = newTime ?? timerSet
     timeUp = false
+    // eliminationTimeUp is reset in nextPlayer()
   }
 
   /** Called when a full round has been completed */
@@ -251,10 +262,22 @@
       player => player.state === PlayerState.Playing,
     )
 
-    const wasEliminationRound = state === GameState.EliminationAnswerDisplayed
+    const wasEliminationRound =
+      state === GameState.EliminationAnswerDisplayed ||
+      state === GameState.EliminationRoundFailed
 
     // Eliminate player/send to limbo if required
     if (wasEliminationRound) {
+      if (eliminationTimeUp) {
+        eliminationPlayers.forEach(
+          player => (player.state = PlayerState.Eliminated),
+        )
+        playersStore.set(players)
+        eliminationTimeUp = false
+        checkGameOver()
+        return
+      }
+
       const winner = lastCorrect ? buzzedIn : buzzedIn === 0 ? 1 : 0
       const loser = winner === 0 ? 1 : 0
 
@@ -309,7 +332,6 @@
 
     switch (state) {
       case GameState.Pregame:
-      case GameState.PreEliminationQuestion:
       case GameState.EliminationCategoryDisplayed:
       case GameState.EliminationQuestionDisplayed:
         flipAndNextState()
@@ -321,12 +343,19 @@
         flipAndNextState()
         break
 
+      case GameState.PreEliminationQuestion:
+        timer = eliminationTimerSet
       case GameState.PreQuestion:
         flipAndNextState(runTimer)
         break
 
       case GameState.QuestionDisplayed:
+      case GameState.EliminationQuestionDisplayed:
         flipAndNextState(resetTimer)
+        break
+
+      case GameState.EliminationRoundFailed:
+        nextPlayer(false)
         break
 
       case GameState.AnswerDisplayed:
@@ -395,11 +424,13 @@
       {/if}
 
       {#if state === GameState.QuestionDisplayed}
-        {#if !timeUp}
-          <p>{question.question}</p>
-        {:else}
-          <p>C'est l'heure!</p>
-        {/if}
+        <p>
+          {#if !timeUp}
+            {question.question}
+          {:else}
+            C'est l'heure!
+          {/if}
+        </p>
       {/if}
 
       {#if state === GameState.AnswerDisplayed || state === GameState.EliminationAnswerDisplayed}
@@ -408,7 +439,7 @@
 
       {#if state === GameState.NewEliminationRound}
         <p>
-          <b>Showdown:</b>
+          <b>Tour d'élimination:</b>
           <br />
           {eliminationPlayers[0].name} vs. {eliminationPlayers[1].name}
         </p>
@@ -421,17 +452,29 @@
       {/if}
 
       {#if state === GameState.PreEliminationQuestion}
-        <p>Préparez-vous...</p>
-        <p><b>« Buzz in » quand la question est révélée</b></p>
+        <p style="margin-bottom: 0.5em;">Préparez-vous...</p>
+        <p style="margin-top: 0.5em;">
+          <b>« Buzz in » quand la question est révélée</b>
+        </p>
       {/if}
 
       {#if state === GameState.EliminationQuestionDisplayed}
-        <p>{question.question}</p>
+        <p style="margin-bottom: 0.5em;"><b>{question.question}</b></p>
+        <p style="margin-top: 0.5em;">
+          Cliquez <b>dès que quelqu'un « buzz in »</b>
+        </p>
       {/if}
 
       {#if state === GameState.EliminationPlayerAnswered}
-        <p>{question.question}</p>
-        <p><b>Donnez votre réponse maintenant</b></p>
+        <!-- <p>{question.question}</p> -->
+        <p>Donnez votre réponse maintenant</p>
+      {/if}
+
+      {#if state === GameState.EliminationRoundFailed}
+        <p style="margin-bottom: 0.5em;">C'est l'heure!</p>
+        <p style="margin-top: 0.5em;">
+          <b>Tous les deux joueurs sont éliminés!</b>
+        </p>
       {/if}
 
       {#if state === GameState.GameOver}
@@ -440,7 +483,7 @@
     </Card>
   </div>
 
-  {#if state === GameState.QuestionDisplayed}
+  {#if state === GameState.QuestionDisplayed || state === GameState.EliminationQuestionDisplayed}
     <h1 style="font-size: 6em; margin: 0;{timer === 0 ? ' color: red;' : ''}">
       00:{timer.toString().padStart(2, '0')}
     </h1>

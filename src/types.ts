@@ -32,6 +32,8 @@ export enum GameState {
   EliminationPlayerAnswered,
   /** Elimination answer is onscreen */
   EliminationAnswerDisplayed,
+  /** Both players failed to answer in time */
+  EliminationRoundFailed,
   /** Game is done */
   GameOver,
 }
