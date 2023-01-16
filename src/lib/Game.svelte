@@ -333,7 +333,6 @@
     switch (state) {
       case GameState.Pregame:
       case GameState.EliminationCategoryDisplayed:
-      case GameState.EliminationQuestionDisplayed:
         flipAndNextState()
         break
 
@@ -345,6 +344,7 @@
 
       case GameState.PreEliminationQuestion:
         timer = eliminationTimerSet
+      /** eslint-disable-next-line no-fallthrough */
       case GameState.PreQuestion:
         flipAndNextState(runTimer)
         break
