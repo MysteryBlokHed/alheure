@@ -39,6 +39,7 @@ export enum GameState {
 export enum QuestionCategory {
   FindTense,
   Conjugate,
+  CDOrCI,
 }
 
 /** A player in the game */
