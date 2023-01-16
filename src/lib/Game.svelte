@@ -42,6 +42,8 @@
   let timer = timerSet
   /** The number of the interval to count down the timer */
   let timerInterval: number
+  /** Whether the timer is at 0. Used to sync the changes of the card with its animation */
+  let timeUp = false
 
   /** The list of active players */
   let players: Player[]
@@ -115,17 +117,15 @@
   })
 
   /**
-   * Start the flip animation and update the game state
-   * @param newState The new game state
+   * Start the flip animation
    * @param callback Called when content is safe to change
    */
-  const flipAndChangeState = (newState: GameState, callback?: () => void) => {
+  const flip = (callback?: () => void) => {
     cardEnabled = false
     container?.classList.add('flip')
 
     // Reset state and run callback
     setTimeout(() => {
-      state = newState
       callback?.()
     }, flipTime / 2)
 
@@ -134,6 +134,18 @@
       container?.classList.remove('flip')
       cardEnabled = true
     }, flipTime)
+  }
+
+  /**
+   * Start the flip animation and update the game state
+   * @param newState The new game state
+   * @param callback Called when content is safe to change
+   */
+  const flipAndChangeState = (newState: GameState, callback?: () => void) => {
+    flip(() => {
+      state = newState
+      callback?.()
+    })
   }
 
   /**
@@ -153,7 +165,9 @@
       case QuestionCategory.FindTense:
         return 'Nommer le temps de verbe'
       case QuestionCategory.Conjugate:
-        return 'Bien conjuguer le verbe (ou les verbes)'
+        return 'Conjuguer le verbe'
+      case QuestionCategory.CDOrCI:
+        return 'Y a-t-il un CD ou CI?'
     }
   }
 
@@ -162,6 +176,7 @@
     timerInterval = window.setInterval(() => {
       if (--timer === 0) {
         clearInterval(timerInterval)
+        flip(() => (timeUp = true))
       }
     }, 1000)
   }
@@ -170,6 +185,7 @@
   const resetTimer = (newTime?: number) => {
     clearInterval(timerInterval)
     timer = newTime ?? timerSet
+    timeUp = false
   }
 
   /** Called when a full round has been completed */
@@ -379,7 +395,7 @@
       {/if}
 
       {#if state === GameState.QuestionDisplayed}
-        {#if timer > 0}
+        {#if !timeUp}
           <p>{question.question}</p>
         {:else}
           <p>C'est l'heure!</p>
