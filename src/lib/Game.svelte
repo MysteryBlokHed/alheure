@@ -104,15 +104,14 @@
 
   playersStore.subscribe(value => (players = value))
 
-  // Prevent the space bar from scrolling the page
-  window.addEventListener('keydown', event => {
-    if (event.key === ' ') event.preventDefault()
-    return false
-  })
-
   // Simulate a click on the card when the space bar is pressed
-  window.addEventListener('keyup', event => {
-    if (event.key === ' ') container?.click()
+  // and prevent the space bar from scrolling the page
+  window.addEventListener('keydown', event => {
+    if (event.key === ' ') {
+      event.preventDefault()
+      container?.click()
+    }
+    return false
   })
 
   /**
@@ -132,7 +131,7 @@
 
     // Re-enable card interaction and remove flip class
     setTimeout(() => {
-      container.classList.remove('flip')
+      container?.classList.remove('flip')
       cardEnabled = true
     }, flipTime)
   }
@@ -355,7 +354,7 @@
     bind:this={container}
     use:Ripple={{ surface: true }}
     on:click={cardClick}
-    on:keyup={event => {
+    on:keydown={event => {
       /* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access */
       if (event.key === 'Enter') container.click()
     }}
