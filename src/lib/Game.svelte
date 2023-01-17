@@ -63,13 +63,38 @@
   /** The number of the interval to show confetti */
   let confettiInterval: number
 
+  /** Get available questions from sessionStorage */
+  const availableFromStorage = () => {
+    if (!sessionStorage.availableQuestions) {
+      throw new Error('No data in sessionStorage')
+    }
+
+    const availableIndices: number[] = JSON.parse(
+      sessionStorage.availableQuestions as string,
+    ) as number[]
+
+    return availableIndices.map(index => questions[index])
+  }
+
+  /** Save available questions to sessionStorage */
+  const availableToStorage = (available: Question[]) => {
+    const availableIndices = available.map(question =>
+      questions.indexOf(question),
+    )
+    sessionStorage.availableQuestions = JSON.stringify(availableIndices)
+  }
+
   /**
    * The list of available questions.
    * Every time a question is used, it's removed from the list
    */
-  let availableQuestions = [...questions]
+  let availableQuestions: Question[] = sessionStorage.availableQuestions
+    ? availableFromStorage()
+    : [...questions]
   /** The current question */
   let question: Question = availableQuestions[0]
+
+  $: availableToStorage(availableQuestions)
 
   /** Whether anyone was eliminated for the current round */
   let anyEliminated = false
@@ -81,6 +106,7 @@
     question =
       availableQuestions[Math.floor(Math.random() * availableQuestions.length)]
     availableQuestions.splice(availableQuestions.indexOf(question), 1)
+    availableQuestions = availableQuestions
   }
 
   const showConfetti = () => {
