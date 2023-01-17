@@ -10,6 +10,10 @@
 
   let started: boolean
   startedStore.subscribe(value => (started = value))
+
+  let unique = {}
+
+  const restart = () => (unique = {})
 </script>
 
 <main>
@@ -17,10 +21,12 @@
   {#if !started}
     <Setup />
   {:else}
-    <Game />
-    <br />
-    <PlayerList />
-    <br />
+    {#key unique}
+      <Game {restart} />
+      <br />
+      <PlayerList />
+      <br />
+    {/key}
   {/if}
   <br />
   <Help />

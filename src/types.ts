@@ -36,6 +36,8 @@ export enum GameState {
   EliminationRoundFailed,
   /** Game is done */
   GameOver,
+  /** User is prompted to play again */
+  PlayAgainPrompt,
 }
 
 export enum QuestionCategory {

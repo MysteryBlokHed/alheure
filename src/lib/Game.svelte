@@ -14,6 +14,8 @@
     type Question,
   } from '../types'
 
+  export let restart: () => void
+
   /** Keep this up-to-date with the animation length */
   const flipTime = 750
 
@@ -131,8 +133,10 @@
     confettiInterval = window.setInterval(showConfetti, 4000)
   }
 
-  $: if (state === GameState.NewRound && confettiInterval)
+  $: if (state <= GameState.NewRound && confettiInterval) {
     clearInterval(confettiInterval)
+    confettiInterval = 0
+  }
 
   playersStore.subscribe(value => (players = value))
 
@@ -359,6 +363,7 @@
     switch (state) {
       case GameState.Pregame:
       case GameState.EliminationCategoryDisplayed:
+      case GameState.GameOver:
         flipAndNextState()
         break
 
@@ -384,9 +389,15 @@
         nextPlayer(false)
         break
 
+      case GameState.PlayAgainPrompt:
+        if (confettiInterval) clearInterval(confettiInterval)
+        players.forEach(player => (player.state = PlayerState.Playing))
+        playersStore.set(players)
+        flip(restart)
+        break
+
       case GameState.AnswerDisplayed:
       case GameState.EliminationPlayerAnswered:
-      case GameState.GameOver:
         break
 
       default:
@@ -408,7 +419,7 @@
       <b class="player-name">
         {eliminationPlayers[1].name}
       </b>
-    {:else if state !== GameState.GameOver}
+    {:else if state < GameState.GameOver}
       Tour de <b class="player-name">
         {players[current].name}
       </b>
@@ -505,6 +516,10 @@
 
       {#if state === GameState.GameOver}
         <p>Félicitations à {victor.name}!</p>
+      {/if}
+
+      {#if state === GameState.PlayAgainPrompt}
+        <p>Jouer encore?</p>
       {/if}
     </Card>
   </div>
