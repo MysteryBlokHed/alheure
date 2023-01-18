@@ -346,17 +346,31 @@
       return
     }
 
-    const currentIsLast =
-      playersUneliminated.indexOf(current) === playersUneliminated.length - 1
+    let currentIsLast: boolean
+
+    if (wasEliminationRound) {
+      currentIsLast =
+        playersUneliminated.indexOf(current) === playersUneliminated.length - 1
+    } else {
+      currentIsLast =
+        playersAvailable.indexOf(current) === playersAvailable.length - 1
+    }
 
     if (!currentIsLast) {
-      const currentUneliminatedIndex = playersUneliminated.indexOf(current)
-      const nextPlayer = playersUneliminated[currentUneliminatedIndex + 1]
-      current = nextPlayer
+      if (wasEliminationRound) {
+        const currentUneliminatedIndex = playersUneliminated.indexOf(current)
+        const nextPlayer = playersUneliminated[currentUneliminatedIndex + 1]
+        current = nextPlayer
+      } else {
+        const currentAvailableIndex = playersAvailable.indexOf(current)
+        const nextPlayer = playersAvailable[currentAvailableIndex + 1]
+        current = nextPlayer
+      }
     } else {
       current = playersAvailable[0]
       if (!wasEliminationRound) fullRoundDone()
     }
+
     flipAndChangeState(GameState.NewRound)
   }
 
