@@ -8,12 +8,24 @@
 
   import { started as startedStore } from './stores'
 
+  /** Keep this up-to-date with the animation length */
+  const flipTime = 750
+
   let started: boolean
   startedStore.subscribe(value => (started = value))
 
+  let container: HTMLDivElement
+
   let unique = {}
 
-  const restart = () => (unique = {})
+  const restart = () => {
+    container.classList.add('collapsed')
+    setTimeout(() => {
+      container.classList.remove('collapsed')
+      startedStore.set(false)
+      unique = {}
+    }, flipTime / 2)
+  }
 </script>
 
 <main>
@@ -21,12 +33,14 @@
   {#if !started}
     <Setup />
   {:else}
-    {#key unique}
-      <Game {restart} />
-      <br />
-      <PlayerList />
-      <br />
-    {/key}
+    <div class="game-container" bind:this={container}>
+      {#key unique}
+        <Game {restart} {flipTime} />
+        <br />
+        <PlayerList />
+        <br />
+      {/key}
+    </div>
   {/if}
   <br />
   <Help />

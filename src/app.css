@@ -44,6 +44,10 @@ h2 {
   user-select: none;
 }
 
+.game-container {
+  transition: 375ms ease;
+}
+
 @media only screen and (max-width: 700px) {
   .mdc-card {
     width: 90vw;
@@ -52,6 +56,10 @@ h2 {
 
 .flip {
   animation: flip 750ms ease;
+}
+
+.collapsed {
+  transform: scaleY(0);
 }
 
 @keyframes flip {

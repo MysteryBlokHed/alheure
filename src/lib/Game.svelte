@@ -14,10 +14,15 @@
     type Question,
   } from '../types'
 
+  /**
+   * A function to restart the game.
+   * This should recreate the `<Game />` component so that all state is reset.
+   * Any visual effects to make the restart less jarring should also be handled here
+   */
   export let restart: () => void
 
   /** Keep this up-to-date with the animation length */
-  const flipTime = 750
+  export let flipTime: number
 
   /**
    * A reference to the card's container.
@@ -411,11 +416,7 @@
         if (confettiInterval) clearInterval(confettiInterval)
         players.forEach(player => (player.state = PlayerState.Playing))
         playersStore.set(players)
-        flip(() => {
-          // This is done like this to make sure the card fully flips before recreating the component
-          state = GameState.Pregame
-          flip(restart)
-        })
+        restart()
         break
 
       case GameState.AnswerDisplayed:
