@@ -392,7 +392,11 @@
         if (confettiInterval) clearInterval(confettiInterval)
         players.forEach(player => (player.state = PlayerState.Playing))
         playersStore.set(players)
-        flip(restart)
+        flip(() => {
+          // This is done like this to make sure the card fully flips before recreating the component
+          state = GameState.Pregame
+          flip(restart)
+        })
         break
 
       case GameState.AnswerDisplayed:
