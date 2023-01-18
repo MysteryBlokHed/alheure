@@ -53,8 +53,8 @@
 
   /** The list of active players */
   let players: Player[]
-  /** The current player's index */
-  let current = 0
+  /** The current player */
+  let current: Player
   /** The players in the elimination round */
   let eliminationPlayers: [Player, Player]
   /** The index in `eliminationPlayers` of the player who buzed in during the elimination round */
@@ -139,6 +139,7 @@
   }
 
   playersStore.subscribe(value => (players = value))
+  $: if (!current) current = players[0]
 
   // Simulate a click on the card when the space bar is pressed
   // and prevent the space bar from scrolling the page
@@ -327,9 +328,9 @@
         )
 
         if (nonEliminated.length === 2) {
-          players[current].state = PlayerState.Eliminated
+          current.state = PlayerState.Eliminated
         } else {
-          players[current].state = PlayerState.Limbo
+          current.state = PlayerState.Limbo
         }
 
         playersStore.set(players)
@@ -346,17 +347,14 @@
     }
 
     const currentIsLast =
-      playersUneliminated.indexOf(players[current]) ===
-      playersUneliminated.length - 1
+      playersUneliminated.indexOf(current) === playersUneliminated.length - 1
 
     if (!currentIsLast) {
-      const currentUneliminatedIndex = playersUneliminated.indexOf(
-        players[current],
-      )
+      const currentUneliminatedIndex = playersUneliminated.indexOf(current)
       const nextPlayer = playersUneliminated[currentUneliminatedIndex + 1]
-      current = players.indexOf(nextPlayer)
+      current = nextPlayer
     } else {
-      current = players.indexOf(playersAvailable[0])
+      current = playersAvailable[0]
       if (!wasEliminationRound) fullRoundDone()
     }
     flipAndChangeState(GameState.NewRound)
@@ -431,7 +429,7 @@
       </b>
     {:else if state < GameState.GameOver}
       Tour de <b class="player-name">
-        {players[current].name}
+        {current.name}
       </b>
     {:else}
       <b class="player-name">
