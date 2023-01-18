@@ -57,8 +57,24 @@ export interface Player {
   state: PlayerState
 }
 
-export interface Question {
+export interface GenericQuestion {
   category: QuestionCategory
   question: string
   answer: string
 }
+
+export interface FindTenseQuestion extends GenericQuestion {
+  category: QuestionCategory.FindTense
+  answer: 'le passé composé' | "l'imparfait" | 'le futur simple'
+}
+
+export interface ConjugateQuestion extends GenericQuestion {
+  category: QuestionCategory.Conjugate
+}
+
+export interface CDOrCIQuestion extends GenericQuestion {
+  category: QuestionCategory.CDOrCI
+  answer: 'CD' | 'CI'
+}
+
+export type Question = FindTenseQuestion | ConjugateQuestion | CDOrCIQuestion

@@ -1,52 +1,60 @@
-import { QuestionCategory, type Question } from './types'
+import {
+  QuestionCategory,
+  type Question,
+  type CDOrCIQuestion,
+  type FindTenseQuestion,
+  type ConjugateQuestion,
+} from './types'
 
-export const findTense: Question[] = [
-  {
-    question: 'Je suis allé au parc',
-    answer: 'le passé composé',
-  },
-  {
-    question: "J'avais un chat quand j'étais jeune",
-    answer: "l'imparfait",
-  },
-  {
-    question: 'Je ne serai pas là pour le rendez-vous',
-    answer: 'le futur simple',
-  },
-  {
-    question: "J'ai visité la Tour Eiffel hier",
-    answer: 'le passé composé',
-  },
-  {
-    question: 'Nous avons fini nos devoirs hier soir',
-    answer: 'le passé composé',
-  },
-  {
-    question: "Je visiterai la France l'été prochain",
-    answer: 'le futur simple',
-  },
-  {
-    question: 'Elle écrira une lettre à son ami',
-    answer: 'le futur simple',
-  },
-  {
-    question: "Je visitais souvent ma grand-mère quand j'étais tout petit",
-    answer: "l'imparfait",
-  },
-  {
-    question: 'Elle aimait beaucoup lire des romans',
-    answer: "l'imparfait",
-  },
-  {
-    question: 'Il a acheté un nouveau vélo il y a quelques semaines',
-    answer: 'le passé composé',
-  },
-].map(question => ({
+export const findTense = (
+  [
+    {
+      question: 'Je suis allé au parc',
+      answer: 'le passé composé',
+    },
+    {
+      question: "J'avais un chat quand j'étais jeune",
+      answer: "l'imparfait",
+    },
+    {
+      question: 'Je ne serai pas là pour le rendez-vous',
+      answer: 'le futur simple',
+    },
+    {
+      question: "J'ai visité la Tour Eiffel hier",
+      answer: 'le passé composé',
+    },
+    {
+      question: 'Nous avons fini nos devoirs hier soir',
+      answer: 'le passé composé',
+    },
+    {
+      question: "Je visiterai la France l'été prochain",
+      answer: 'le futur simple',
+    },
+    {
+      question: 'Elle écrira une lettre à son ami',
+      answer: 'le futur simple',
+    },
+    {
+      question: "Je visitais souvent ma grand-mère quand j'étais tout petit",
+      answer: "l'imparfait",
+    },
+    {
+      question: 'Elle aimait beaucoup lire des romans',
+      answer: "l'imparfait",
+    },
+    {
+      question: 'Il a acheté un nouveau vélo il y a quelques semaines',
+      answer: 'le passé composé',
+    },
+  ] satisfies Array<Omit<FindTenseQuestion, 'category'>>
+).map(question => ({
   ...question,
   category: QuestionCategory.FindTense,
-}))
+})) satisfies FindTenseQuestion[]
 
-export const conjugate: Question[] = [
+export const conjugate = [
   {
     question: 'Je _____ (manger, passé composé) une pomme',
     answer: 'ai mangé',
@@ -117,37 +125,39 @@ export const conjugate: Question[] = [
 ].map(question => ({
   ...question,
   category: QuestionCategory.Conjugate,
-}))
+})) satisfies ConjugateQuestion[]
 
-export const cdOrCI: Question[] = [
-  {
-    question: "La pomme que j'ai mangée était délicieuse",
-    answer: 'CD',
-  },
-  {
-    question: "L'endroit où je suis allé était magnifique",
-    answer: 'CI',
-  },
-  {
-    question: 'Je me suis lavée ce matin',
-    answer: 'CD',
-  },
-  {
-    question: 'Je lui ai parlé la semaine passée',
-    answer: 'CI',
-  },
-  {
-    question: "J'ai visité la Tour Eiffel hier",
-    answer: 'CD',
-  },
-  {
-    question: 'Je suis allé à Lyon pour visiter ma famille',
-    answer: 'CI',
-  },
-].map(question => ({
+export const cdOrCI = (
+  [
+    {
+      question: "La pomme que j'ai mangée était délicieuse",
+      answer: 'CD',
+    },
+    {
+      question: "L'endroit où je suis allé était magnifique",
+      answer: 'CI',
+    },
+    {
+      question: 'Je me suis lavée ce matin',
+      answer: 'CD',
+    },
+    {
+      question: 'Je lui ai parlé la semaine passée',
+      answer: 'CI',
+    },
+    {
+      question: "J'ai visité la Tour Eiffel hier",
+      answer: 'CD',
+    },
+    {
+      question: 'Je suis allé à Lyon pour visiter ma famille',
+      answer: 'CI',
+    },
+  ] satisfies Array<Omit<CDOrCIQuestion, 'category'>>
+).map(question => ({
   ...question,
   category: QuestionCategory.CDOrCI,
-}))
+})) satisfies CDOrCIQuestion[]
 
 const questions: Question[] = [...findTense, ...conjugate, ...cdOrCI]
 
