@@ -133,7 +133,7 @@ export const cdOrCI: Question[] = [
     answer: 'CD',
   },
   {
-    question: 'Je lui ai parlé la semaine passé',
+    question: 'Je lui ai parlé la semaine passée',
     answer: 'CI',
   },
   {
