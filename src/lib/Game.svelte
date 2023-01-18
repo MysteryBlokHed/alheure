@@ -185,7 +185,6 @@
   /**
    * Start the flip animation and increment the game state by 1
    * @param callback Called when content is safe to change
-   * @returns A Promise that resolves when content is safe to change
    */
   const flipAndNextState = (callback?: () => void) =>
     flipAndChangeState(state + 1, callback)
