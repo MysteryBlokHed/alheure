@@ -291,6 +291,10 @@
       player => player.state === PlayerState.Playing,
     )
 
+    const playersUneliminated = players.filter(
+      player => player.state !== PlayerState.Eliminated,
+    )
+
     const wasEliminationRound =
       state === GameState.EliminationAnswerDisplayed ||
       state === GameState.EliminationRoundFailed
@@ -342,11 +346,14 @@
     }
 
     const currentIsLast =
-      playersAvailable.indexOf(players[current]) === playersAvailable.length - 1
+      playersUneliminated.indexOf(players[current]) ===
+      playersUneliminated.length - 1
 
     if (!currentIsLast) {
-      const nextPlayer =
-        playersAvailable[playersAvailable.indexOf(players[current]) + 1]
+      const currentUneliminatedIndex = playersUneliminated.indexOf(
+        players[current],
+      )
+      const nextPlayer = playersUneliminated[currentUneliminatedIndex + 1]
       current = players.indexOf(nextPlayer)
     } else {
       current = players.indexOf(playersAvailable[0])
