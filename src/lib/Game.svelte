@@ -21,9 +21,6 @@
    */
   export let restart: () => void
 
-  /** Keep this up-to-date with the animation length */
-  export let flipTime: number
-
   /**
    * A reference to the card's container.
    * Click events and whatnot are handled on the container,
@@ -157,27 +154,39 @@
   })
 
   /**
-   * Start the flip animation
+   * Start the flip transition
    * @param callback Called when content is safe to change
    */
   const flip = (callback?: () => void) => {
     cardEnabled = false
-    container?.classList.add('flip')
+    container?.classList.add('flipped')
 
-    // Reset state and run callback
-    setTimeout(() => {
-      callback?.()
-    }, flipTime / 2)
+    // First transition end, card is invisible
+    container?.addEventListener(
+      'transitionend',
+      e => {
+        // Fixes a weird problem where the transitionend event fires way before the transition is done
+        if (e.elapsedTime < 0.1) {
+          flip(callback)
+          return
+        }
 
-    // Re-enable card interaction and remove flip class
-    setTimeout(() => {
-      container?.classList.remove('flip')
-      cardEnabled = true
-    }, flipTime)
+        callback?.()
+        container?.classList.remove('flipped')
+
+        // Second transition end, card is visible
+        container?.addEventListener(
+          'transitionend',
+          () => (cardEnabled = true),
+          { once: true },
+        )
+      },
+      { once: true },
+    )
   }
 
   /**
-   * Start the flip animation and update the game state
+   * Start the flip transition and update the game state
    * @param newState The new game state
    * @param callback Called when content is safe to change
    */
@@ -189,7 +198,7 @@
   }
 
   /**
-   * Start the flip animation and increment the game state by 1
+   * Start the flip transition and increment the game state by 1
    * @param callback Called when content is safe to change
    */
   const flipAndNextState = (callback?: () => void) =>

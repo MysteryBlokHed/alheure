@@ -44,6 +44,10 @@ h2 {
   user-select: none;
 }
 
+.card-container {
+  transition: 375ms ease;
+}
+
 .game-container {
   transition: 375ms ease;
 }
@@ -54,27 +58,14 @@ h2 {
   }
 }
 
-.flip {
-  animation: flip 750ms ease;
+.flipped {
+  transform: scaleX(0);
 }
 
 .collapsed {
   transform: scaleY(0);
 }
 
-@keyframes flip {
-  0% {
-    transform: scaleX(1);
-  }
-
-  50% {
-    transform: scaleX(0);
-  }
-
-  100% {
-    transform: scaleX(1);
-  }
-}
 
 #app {
   max-width: 1280px;

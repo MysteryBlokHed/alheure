@@ -35,7 +35,7 @@
   {:else}
     <div class="game-container" bind:this={container}>
       {#key unique}
-        <Game {restart} {flipTime} />
+        <Game {restart} />
         <br />
         <PlayerList />
         <br />
