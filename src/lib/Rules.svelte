@@ -38,9 +38,9 @@
     <p>
       Quand deux joueurs sont éliminées, il y a une question partagée entre les
       deux. Les joueurs doivent « buzz in » pour réponde à la question quand
-      elle est révéillée. « Buzzing in » peut être fait en mettant un objet (ex.
+      elle est révélée. « Buzzing in » peut être fait en mettant un objet (ex.
       un morceau de papier) entre les deux joueurs et voir qui prend le papier
-      en premier.
+      en premier, ou sinon en voyant qui peut donner la réponse en premier.
     </p>
     <p>
       Si le joueur répond correctement à la question, il reste dans le jeu et
