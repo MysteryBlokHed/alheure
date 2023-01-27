@@ -1,5 +1,7 @@
 # À l'heure
 
+<https://alheure.adamts.me>
+
 A game to work with 10th grade grammar. Made for a French class.
 
 ## Building
