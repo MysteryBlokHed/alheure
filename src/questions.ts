@@ -112,7 +112,7 @@ export const conjugate = [
   },
   {
     question: 'Nous _____ (aller, futur simple) à ce restaurant ce soir',
-    answer: 'allons',
+    answer: 'irons',
   },
   {
     question: 'Il _____ (être, futur simple) professeur dans deux ans',
